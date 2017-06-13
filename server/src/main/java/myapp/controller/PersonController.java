@@ -3,6 +3,7 @@ package myapp.controller;
 import java.beans.PropertyChangeListener;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 import org.opendolphin.core.Attribute;
@@ -49,7 +50,6 @@ class PersonController extends Controller implements BasePmMixin {
         this.service = service;
     }
 
-
     @Override
     public void registerCommands(ActionRegistry registry) {
         registry.register(PersonCommands.SHOW_NEXT, ($, $$) -> showNext());
@@ -57,45 +57,45 @@ class PersonController extends Controller implements BasePmMixin {
         registry.register(PersonCommands.SAVE     , ($, $$) -> save());
         registry.register(PersonCommands.RESET    , ($, $$) -> reset(PMDescription.PERSON));
 
-        registry.register(PersonCommands.ON_PUSH   , ($, $$) -> processEventsFromQueue(60, TimeUnit.SECONDS));
-        registry.register(PersonCommands.ON_RELEASE, ($, $$) -> personInfoBus.publish(null, new Slot("a", null)));
+        registry.register(PersonCommands.ON_PUSH   , ($, $$) -> processEventsFromQueue());
+        registry.register(PersonCommands.ON_RELEASE, ($, $$) -> onRelease());
     }
 
     @Override
     protected void initializeBasePMs() {
         ServerPresentationModel personProxyPM = createProxyPM(PMDescription.PERSON, PERSON_PROXY_PM_ID);
 
-        PropertyChangeListener proliferator = evt -> {
-            if (silent) {
-                return;
-            }
-            ServerAttribute attribute = (ServerAttribute) evt.getSource();
-            if (attribute.getQualifier() != null) {
-                Slot slot = new Slot(attribute.getPropertyName(), attribute.getValue(), attribute.getQualifier());
-                personInfoBus.publish(personQueue, slot);
-            }
-        };
-
         personProxyPM.getAttributes().stream()
-          .filter(attr -> attr.getTag().equals(Tag.VALUE))
-          .forEach(attr -> attr.addPropertyChangeListener(Attribute.VALUE, proliferator));
+          .filter(attr -> Tag.VALUE.equals(attr.getTag()))
+          .forEach(attr -> attr.addPropertyChangeListener(Attribute.VALUE, evt -> {
+              if (silent) {
+                  return;
+              }
+              ServerAttribute attribute = (ServerAttribute) evt.getSource();
+              if (attribute.getQualifier() != null) {
+                  Slot slot = new Slot(attribute.getPropertyName(), attribute.getValue(), attribute.getQualifier());
+                  personInfoBus.publish(personQueue, slot);
+              }
+          }));
 
         personProxy = new Person(personProxyPM);
     }
 
-    private void processEventsFromQueue(int timeoutValue, TimeUnit timeoutUnit) {
+    private void processEventsFromQueue() {
         try {
-            Slot slot = personQueue.getVal(timeoutValue, timeoutUnit);
+            Slot slot = personQueue.getVal(60, TimeUnit.SECONDS);
+            silent = true; // do not issue additional posts on the bus from value changes that come from the bus
             while (null != slot) {
-                silent = true; // do not issue additional posts on the bus from value changes that come from the bus
                 if ("toShow".equals(slot.getPropertyName())) {
                     show((Long) slot.getValue());
+                } else if ("noOp".equals(slot.getPropertyName())) {
+                    return;
                 } else {
                     List<ServerAttribute> attributes = getServerDolphin().findAllAttributesByQualifier(slot.getQualifier());
                     for (ServerAttribute attribute : attributes) {
                         PresentationModel pm = attribute.getPresentationModel();
                         if (personProxy.getPresentationModel().getPresentationModelType().equals(pm.getPresentationModelType()) &&
-                            !attribute.getValue().equals(slot.getValue())) {
+                            !Objects.equals(attribute.getValue(), slot.getValue())) {
                             attribute.setValue(slot.getValue());
                         }
                     }
@@ -104,9 +104,14 @@ class PersonController extends Controller implements BasePmMixin {
 
                 slot = personQueue.getVal(20, TimeUnit.MILLISECONDS);
             }
+            silent = false;
         } catch (InterruptedException e) {
             // do nothing
         }
+    }
+
+    private void onRelease(){
+      personInfoBus.publish(null, new Slot("noOp", null));
     }
 
     @Override
@@ -116,11 +121,6 @@ class PersonController extends Controller implements BasePmMixin {
 
     @Override
     protected void setupValueChangedListener() {
-        personProxy.age.valueProperty().addListener((observable, oldValue, newValue) -> {
-            personProxy.isAdult.setValue(newValue.intValue() >= 18);
-        });
-
-
         getApplicationState().language.valueProperty().addListener((observable, oldValue, newValue) -> translate(personProxy, newValue));
     }
 
@@ -128,11 +128,11 @@ class PersonController extends Controller implements BasePmMixin {
         return show(currentEntityId + 1);
     }
 
-    ServerPresentationModel showLast() {
+    private ServerPresentationModel showLast() {
         return show(currentEntityId - 1);
     }
 
-    ServerPresentationModel show(long idToShow) {
+    private ServerPresentationModel show(long idToShow) {
         if(!silent){
             personInfoBus.publish(personQueue, new Slot("toShow", idToShow));
         }

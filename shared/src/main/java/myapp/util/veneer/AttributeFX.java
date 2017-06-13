@@ -19,7 +19,7 @@ import org.opendolphin.core.Tag;
 import myapp.util.AdditionalTag;
 import myapp.util.AttributeDescription;
 import myapp.util.Language;
-import myapp.util.TaskBatcher;
+import myapp.util.EventSilencer;
 import myapp.util.veneer.dolphinattributeadapter.BooleanAttributeAdapter;
 import myapp.util.veneer.dolphinattributeadapter.DirtyPropertyAdapter;
 import myapp.util.veneer.dolphinattributeadapter.StringAttributeAdapter;
@@ -46,7 +46,7 @@ public abstract class AttributeFX<PropertyType extends Property<ValueType>, Valu
 
     private final Pattern syntaxPattern;
 
-    private final TaskBatcher taskBatcher = new TaskBatcher(Duration.ofMillis(150));
+    private final EventSilencer eventSilencer = new EventSilencer(Duration.ofMillis(200));
 
     protected AttributeFX(PresentationModel pm, AttributeDescription attributeDescription, String syntaxPattern, PropertyType dolphinValueAttributeAdapter) {
         this.syntaxPattern  = Pattern.compile(syntaxPattern);
@@ -62,30 +62,21 @@ public abstract class AttributeFX<PropertyType extends Property<ValueType>, Valu
 
         setUserFacingString(format(valueProperty().getValue()));
 
-        userFacingStringProperty().addListener((observable, oldValue, newValue) -> {
-            taskBatcher.batch(() -> {
-//                if(Platform.isFxApplicationThread()){
-//                    Platform.runLater(() -> reactToUserInput(newValue));
-//                }
-//                else {
-                    reactToUserInput(newValue);
-//                }
+        if (Platform.isFxApplicationThread()) { // indicates that we are on the client side
+            userFacingStringProperty().addListener((observable, oldValue, newValue) -> {
+                eventSilencer.batch(() -> reactToUserInput(newValue));
+               // reactToUserInput(newValue);
             });
-        });
 
-        valueProperty().addListener((observable, oldValue, newValue) -> {
-            String formattedValue = format(newValue);
-            if(!Objects.equals(formattedValue, getUserFacingString())){
-                if(Platform.isFxApplicationThread()){
-                    Platform.runLater(() -> {
-                        setUserFacingString(formattedValue);
-                    });
+            valueProperty().addListener((observable, oldValue, newValue) -> {
+                String formattedValue = format(newValue);
+                if (!Objects.equals(formattedValue, getUserFacingString())) {
+                    Platform.runLater(() -> setUserFacingString(formattedValue));
+                 //   setUserFacingString(formattedValue);
                 }
-                else {
-                    setUserFacingString(formattedValue);
-                }
-            }
-        });
+            });
+        }
+
     }
 
     protected static Attribute valueAttribute(PresentationModel pm, AttributeDescription attributeDescription) {

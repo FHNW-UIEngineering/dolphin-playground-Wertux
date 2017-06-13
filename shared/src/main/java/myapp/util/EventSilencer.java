@@ -10,12 +10,12 @@ import javafx.application.Platform;
 /**
  * @author Dieter Holz
  */
-public class TaskBatcher {
+public class EventSilencer {
     private final Duration delay;
 
     private Timer timer;
 
-    public TaskBatcher(Duration delay) {
+    public EventSilencer(Duration delay) {
         this.delay = delay;
     }
 
