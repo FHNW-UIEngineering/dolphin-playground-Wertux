@@ -1,17 +1,17 @@
-package myapp.presentationmodel.person;
+package myapp.presentationmodel.canton;
 
 /**
  * @author Dieter Holz
  *
  * todo: specify all commands you need in your corresponding controller
  */
-public interface PersonCommands {
-	String LOAD_SOME_PERSON = unique("loadSomePerson");
+public interface CantonCommands {
+	String LOAD_SOME_CANTON = unique("loadSomeCanton");
 	String SAVE             = unique("save");
 	String RESET            = unique("reset");
 
 	static String unique(String key) {
-		return PersonCommands.class.getName() + "." + key;
+		return CantonCommands.class.getName() + "." + key;
 	}
 
 }

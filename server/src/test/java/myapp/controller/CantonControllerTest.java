@@ -1,39 +1,31 @@
 package myapp.controller;
 
+import myapp.presentationmodel.PMDescription;
+import myapp.presentationmodel.canton.Canton;
+import myapp.presentationmodel.canton.CantonAtt;
+import myapp.service.SomeService;
+import myapp.util.DTOMixin;
+import org.junit.Before;
+import org.junit.Test;
+import org.opendolphin.core.server.*;
+
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.opendolphin.core.server.DTO;
-import org.opendolphin.core.server.DefaultServerDolphin;
-import org.opendolphin.core.server.ServerConnector;
-import org.opendolphin.core.server.ServerModelStore;
-import org.opendolphin.core.server.ServerPresentationModel;
-
-import myapp.presentationmodel.PMDescription;
-import myapp.presentationmodel.person.Person;
-import myapp.presentationmodel.person.PersonAtt;
-import myapp.service.SomeService;
-import myapp.util.DTOMixin;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * @author Dieter Holz
  */
-public class PersonControllerTest {
-    PersonController controller;
+public class CantonControllerTest {
+    CantonController controller;
     ServerModelStore serverModelStore;
     ServiceStub service;
 
     @Before
     public void setup() {
         service = new ServiceStub();
-        controller = new PersonController(service);
+        controller = new CantonController(service);
 
         serverModelStore = new TestModelStore();
         controller.setServerDolphin(new DefaultServerDolphin(serverModelStore, new ServerConnector()));
@@ -45,7 +37,7 @@ public class PersonControllerTest {
 
         //when
         controller.initializeBasePMs();
-        Person p = controller.getPersonProxy();
+        Canton p = controller.getCantonProxy();
 
         //then
         assertNotNull(p);
@@ -56,7 +48,7 @@ public class PersonControllerTest {
     public void testDirtyState(){
         //given
         controller.initializeBasePMs();
-        Person p = controller.getPersonProxy();
+        Canton p = controller.getCantonProxy();
         String name = p.name.getValue();
 
         //when
@@ -71,11 +63,11 @@ public class PersonControllerTest {
     public void testLoadPerson(){
         //given
         controller.initializeBasePMs();
-        Person p = controller.getPersonProxy();
+        Canton p = controller.getCantonProxy();
         p.name.setValue("bla");
 
         //when
-        ServerPresentationModel pm = controller.loadPerson();
+        ServerPresentationModel pm = controller.loadCanton();
 
         //then
         assertFalse(p.isDirty());
@@ -84,7 +76,7 @@ public class PersonControllerTest {
         p.name.setValue("xyz");
 
         //then
-        assertEquals("xyz", pm.getAt(PersonAtt.NAME.name()).getValue());
+        assertEquals("xyz", pm.getAt(CantonAtt.NAME.name()).getValue());
 
     }
 
@@ -92,8 +84,8 @@ public class PersonControllerTest {
     public void testSave(){
         //given
         controller.initializeBasePMs();
-        Person p = controller.getPersonProxy();
-        controller.loadPerson();
+        Canton p = controller.getCantonProxy();
+        controller.loadCanton();
 
         p.name.setValue("abc");
 
@@ -110,7 +102,7 @@ public class PersonControllerTest {
 
         @Override
         public DTO loadSomeEntity() {
-            return createDTO(PMDescription.PERSON);
+            return createDTO(PMDescription.CANTON);
         }
 
         @Override

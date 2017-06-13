@@ -1,34 +1,40 @@
 package myapp;
 
+import myapp.presentationmodel.canton.CantonAtt;
+import myapp.service.SomeService;
+import myapp.util.DTOMixin;
+import org.opendolphin.core.server.DTO;
+
 import java.util.List;
 import java.util.Random;
 
-import org.opendolphin.core.server.DTO;
-
-import myapp.presentationmodel.person.PersonAtt;
-import myapp.service.SomeService;
-import myapp.util.DTOMixin;
-
 public class SomeCombinedService implements SomeService, DTOMixin {
 
-    String[] names = {"Virgil Grissom", "Edward White", "Roger Chaffee",      // Apollo 1
-                      "Walter Schirra", "Donn Eisele" , "Walter Cunningham",  // Apollo 7
-                      "Frank Borman"  , "James Lovell", "William Anders",     // Apollo 8
-                      "James McDivitt", "David Scott" , "Russel Schweickart", // Apollo 9
-                      "Tom Stafford"  , "John Young"  , "Eugene Cernan"};     // Apollo 10
+    String[] cantons = {"Aargau", "Appenzell-Ausserrhoden", "Appenzell-Innerrhoden", "Basel-Land",
+            "Basel-Stadt", "Bern", "Fribourg", "Genf", "Glarus", "Graubünden",  "Jura", "Luzern",
+            "Neuenburg", "Nidwalden", "Obwalden", "Schaffhausen", "Schwyz", "Solothurn",  "St.Gallen",
+            "Thurgau ",  "Tessin", "Uri", "Wallis", "Waadt", "Zug", "Zürich",
+                };
+
+   /* String[] capitals = {"Aarau", "Herisau", "Appenzell", "Liestal",
+            "Basel", "Bern", "Fribourg", "Genf" , "Glarus", "Chur", "Delémont", "Luzern",
+            "Neuchâtel", "Stans", "Sarnen", "Schaffhausen", "Schwyz", "Solothurn", "St. Gallen",
+            "Frauenfeld ", "Bellinzona", "Altdorf", "Sion", "Lausanne", "Zug", "Zürich",};*/
 
     @Override
     public DTO loadSomeEntity() {
         long id = createNewId();
 
         Random r        = new Random();
-        String name     = names[r.nextInt(names.length)];
-        int    age      = r.nextInt(43);
-        boolean isAdult = age >= 18;
-        return new DTO(createSlot(PersonAtt.ID      , id     , id),
-                       createSlot(PersonAtt.NAME    , name   , id),
-                       createSlot(PersonAtt.AGE     , age    , id),
-                       createSlot(PersonAtt.IS_ADULT, isAdult, id));
+        int cantonToDisplay = r.nextInt(cantons.length);
+        String name     = cantons[cantonToDisplay];
+        //String captial  = capitals[cantonToDisplay];
+
+
+        return new DTO(createSlot(CantonAtt.ID      , id     , id),
+                       createSlot(CantonAtt.NAME    , name   , id)
+                       //createSlot(CantonAtt.CAPITAL , captial , id)
+                       );
     }
 
     @Override

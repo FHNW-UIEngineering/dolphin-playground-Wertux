@@ -1,9 +1,7 @@
 package myapp.util.veneer;
 
 import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
-
 import org.opendolphin.core.BasePresentationModel;
 import org.opendolphin.core.PresentationModel;
 
@@ -18,7 +16,7 @@ public class PresentationModelVeneer {
 
     public PresentationModelVeneer(BasePresentationModel pm) {
         this.pm = pm;
-        dirty.set(pm.isDirty());
+        dirty.set(true);
         pm.addPropertyChangeListener(PresentationModel.DIRTY_PROPERTY, evt -> dirty.set((Boolean) evt.getNewValue()));
     }
 
