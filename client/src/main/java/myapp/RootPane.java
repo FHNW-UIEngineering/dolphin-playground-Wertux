@@ -148,13 +148,13 @@ class RootPane extends GridPane implements ViewMixin, BasePmMixin {
     @Override
     public void setupValueChangedListeners() {
         cantonProxy.name.dirtyProperty().addListener((observable, oldValue, newValue)    -> updateStyle(nameField      , DIRTY_STYLE, newValue));
-        //cantonProxy.capital.dirtyProperty().addListener((observable, oldValue, newValue)     -> updateStyle(capitalField, DIRTY_STYLE, newValue));
+        cantonProxy.capital.dirtyProperty().addListener((observable, oldValue, newValue)     -> updateStyle(capitalField, DIRTY_STYLE, newValue));
 
         cantonProxy.name.validProperty().addListener((observable, oldValue, newValue)    -> updateStyle(nameField      , INVALID_STYLE, !newValue));
-       // cantonProxy.capital.validProperty().addListener((observable, oldValue, newValue)     -> updateStyle(capitalField, INVALID_STYLE, !newValue));
+        cantonProxy.capital.validProperty().addListener((observable, oldValue, newValue)     -> updateStyle(capitalField, INVALID_STYLE, !newValue));
 
         cantonProxy.name.mandatoryProperty().addListener((observable, oldValue, newValue)    -> updateStyle(nameField      , MANDATORY_STYLE, newValue));
-        //cantonProxy.capital.mandatoryProperty().addListener((observable, oldValue, newValue)     -> updateStyle(capitalField, MANDATORY_STYLE, newValue));
+        cantonProxy.capital.mandatoryProperty().addListener((observable, oldValue, newValue)     -> updateStyle(capitalField, MANDATORY_STYLE, newValue));
     }
 
     @Override
@@ -174,19 +174,19 @@ class RootPane extends GridPane implements ViewMixin, BasePmMixin {
                  .to("text")
                  .of(headerLabel);
 
-        /*JFXBinder.bind(CantonAtt.CAPITAL.name())
+        JFXBinder.bind(CantonAtt.CAPITAL.name())
                  .of(cantonProxyPM)
                  .using(value -> cantonProxyPM.getAt(CantonAtt.CAPITAL.name()).getValue() + ", " + value)
                  .to("text")
                  .of(headerLabel);
-                 */
+
 
         JFXBinder.bind(CantonAtt.NAME.name(), Tag.LABEL).of(cantonProxyPM).to("text").of(nameLabel);
         JFXBinder.bind(CantonAtt.NAME.name()).of(cantonProxyPM).to("text").of(nameField);
         JFXBinder.bind("text").of(nameField).to(CantonAtt.NAME.name()).of(cantonProxyPM);
 
-        //JFXBinder.bind(CantonAtt.CAPITAL.name(), Tag.LABEL).of(cantonProxyPM).to("text").of(capitalLabel);
-        //JFXBinder.bind(CantonAtt.CAPITAL.name()).of(cantonProxyPM).to("text").of(capitalField);
+        JFXBinder.bind(CantonAtt.CAPITAL.name(), Tag.LABEL).of(cantonProxyPM).to("text").of(capitalLabel);
+        JFXBinder.bind(CantonAtt.CAPITAL.name()).of(cantonProxyPM).to("text").of(capitalField);
         Converter toIntConverter = value -> {
             try {
                 int newValue = Integer.parseInt(value.toString());
@@ -213,13 +213,13 @@ class RootPane extends GridPane implements ViewMixin, BasePmMixin {
     }
 
     private void setupBindings_VeneerBased(){
-     //   headerLabel.textProperty().bind(cantonProxy.name.valueProperty().concat(", ").concat(cantonProxy.capital.valueProperty()));
+       headerLabel.textProperty().bind(cantonProxy.name.valueProperty().concat(", ").concat(cantonProxy.capital.valueProperty()));
 
         idLabel.textProperty().bind(cantonProxy.id.labelProperty());
         idField.textProperty().bind(cantonProxy.id.valueProperty().asString());
 
         setupBinding(nameLabel   , nameField      , cantonProxy.name);
-      //  setupBinding(capitalLabel, capitalField, cantonProxy.capital);
+        setupBinding(capitalLabel, capitalField, cantonProxy.capital);
 
         germanButton.disableProperty().bind(Bindings.createBooleanBinding(() -> Language.GERMAN.equals(ps.language.getValue()), ps.language.valueProperty()));
         englishButton.disableProperty().bind(Bindings.createBooleanBinding(() -> Language.ENGLISH.equals(ps.language.getValue()), ps.language.valueProperty()));

@@ -15,10 +15,10 @@ public class SomeRemoteService implements SomeService, DTOMixin {
             "Thurgau ",  "Tessin", "Uri", "Wallis", "Waadt", "Zug", "Zürich",
     };
 
-    /*String[] capitals = {"Aarau", "Herisau", "Appenzell", "Liestal",
+    String[] capitals = {"Aarau", "Herisau", "Appenzell", "Liestal",
             "Basel", "Bern", "Fribourg", "Genf" , "Glarus", "Chur", "Delémont", "Luzern",
             "Neuchâtel", "Stans", "Sarnen", "Schaffhausen", "Schwyz", "Solothurn", "St. Gallen",
-            "Frauenfeld ", "Bellinzona", "Altdorf", "Sion", "Lausanne", "Zug", "Zürich",};*/
+            "Frauenfeld ", "Bellinzona", "Altdorf", "Sion", "Lausanne", "Zug", "Zürich",};
 
     @Override
     public DTO loadSomeEntity() {
@@ -27,12 +27,12 @@ public class SomeRemoteService implements SomeService, DTOMixin {
         Random r        = new Random();
         int cantonToDisplay = r.nextInt(cantons.length);
         String name     = cantons[cantonToDisplay];
-       // String captial  = capitals[cantonToDisplay];
+        String captial  = capitals[cantonToDisplay];
 
 
         return new DTO(createSlot(CantonAtt.ID      , id     , id),
-                createSlot(CantonAtt.NAME    , name   , id)
-         //       createSlot(CantonAtt.CAPITAL , captial , id)
+                createSlot(CantonAtt.NAME    , name   , id),
+                createSlot(CantonAtt.CAPITAL , captial , id)
         );
     }
 

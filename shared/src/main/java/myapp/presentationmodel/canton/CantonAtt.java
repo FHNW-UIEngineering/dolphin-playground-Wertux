@@ -10,7 +10,7 @@ import myapp.util.ValueType;
 public enum CantonAtt implements AttributeDescription {
     ID(ValueType.ID),
     NAME(ValueType.STRING),
-    CAPITAL(ValueType.INT);
+    CAPITAL(ValueType.STRING);
 
     private final ValueType valueType;
 

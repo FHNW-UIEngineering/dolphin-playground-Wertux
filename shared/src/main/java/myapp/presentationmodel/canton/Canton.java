@@ -15,5 +15,5 @@ public class Canton extends PresentationModelVeneer {
 
     public final LongAttributeFX    id      = new LongAttributeFX(getPresentationModel()   , CantonAtt.ID);
     public final StringAttributeFX  name    = new StringAttributeFX(getPresentationModel() , CantonAtt.NAME);
-    //public final StringAttributeFX capital = new StringAttributeFX(getPresentationModel(), CantonAtt.CAPITAL);
+    public final StringAttributeFX capital = new StringAttributeFX(getPresentationModel(), CantonAtt.CAPITAL);
 }
